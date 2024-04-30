@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +14,10 @@ import static ru.practicum.shareit.constant.Constant.REGEX_EMAIL;
 @Builder
 public class UserDto {
     @Positive
-    Long id;
+    private Long id;
     @Size(max = 30, min = 1, message = "Максимальная длина имени - 30 символов")
-    String name;
+    private String name;
     @NotEmpty
     @Email(regexp = REGEX_EMAIL, message = "В 'email' использованы запрещённые символы")
-    String email;
+    private String email;
 }
