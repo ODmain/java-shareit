@@ -9,7 +9,7 @@ public class HandlerException {
     @ExceptionHandler(ValidException.class)
     public ResponseEntity<ResponseError> notFound(ValidException e) {
         return new ResponseEntity<>(ResponseError.builder()
-                .message(e.getMessage())
+                .error(e.getMessage())
                 .build(), e.getStatus());
     }
 }
