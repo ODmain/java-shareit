@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -154,34 +156,6 @@ public class ItemRequestServiceTest {
 
     }
 
-//    @Test
-//    public void getAllItemRequests_ValidUserId_ListReturned() {
-//        Long userId = 1L;
-//        Integer from = 0;
-//        Integer size = 5;
-//        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
-//        List<ItemRequest> itemRequests = mock(List.class);
-//        List<Item> items = mock(List.class);
-//        List<ItemRequestOutDto> itemRequestOutDtos = mock(List.class);
-//
-//        when(userStorage.existsById(userId)).thenReturn(true);
-//        when(itemRequestStorage.findAllByRequesterIdNot(eq(userId), any(Pageable.class))).thenReturn(new PageImpl<>(itemRequests));
-//        when(itemStorage.findAllByRequestIdIn(anyList())).thenReturn(items);
-//        when(itemRequestMapper.toItemRequestOutDto(any(ItemRequest.class)))
-//                .thenReturn(mock(ItemRequestOutDto.class));
-//        when(itemMapper.toItemResponseDto(any(Item.class)))
-//                .thenReturn(mock(ItemResponseDto.class));
-//
-//        List<ItemRequestOutDto> result = itemRequestService.getAllItemRequests(userId, from, size);
-//
-//        assertEquals(itemRequestOutDtos, result);
-//        verify(userStorage).existsById(userId);
-//        verify(itemRequestStorage).findAllByRequesterIdNot(eq(userId), any(Pageable.class));
-//        verify(itemStorage).findAllByRequestIdIn(anyList());
-//        verify(itemRequestMapper, times(itemRequests.size())).toItemRequestOutDto(any(ItemRequest.class));
-//        verify(itemMapper, times(items.size())).toItemResponseDto(any(Item.class));
-//    }
-
     @Test
     void getAllItemRequests_InvalidUserId_ExceptionThrown() {
         Long userId = 2L;
@@ -193,5 +167,23 @@ public class ItemRequestServiceTest {
     void getAllMineRequests_NotExistUserTest() {
         Long userId = 100L;
         assertThrows(ValidException.class, () -> itemRequestService.getAllMineRequests(userId));
+    }
+
+    @Test
+    void getAllItemRequests_ValidUser_EmptyListReturned() {
+        // Arrange
+        Long userId = 1L;
+        Integer from = 0;
+        Integer size = 10;
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
+        List<ItemRequest> itemRequests = Collections.emptyList();
+        Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
+
+        when(userStorage.existsById(userId)).thenReturn(true);
+        when(itemRequestStorage.findAllByRequesterIdNot(eq(userId), any(Pageable.class))).thenReturn(pagedResponse);
+
+        List<ItemRequestOutDto> result = itemRequestService.getAllItemRequests(userId, from, size);
+
+        assertEquals(Collections.emptyList(), result);
     }
 }

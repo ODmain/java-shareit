@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -136,19 +137,6 @@ public class BookingServiceTest {
         when(userStorage.findById(userId)).thenReturn(Optional.empty());
         assertThrows(ValidException.class, () -> bookingService.addBooking(100L, bookingRequestDto));
     }
-
-//    @Test
-//    public void testAddBookingRequest_itemNotFound() {
-//        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-//                .id(1L)
-//                .start(LocalDateTime.of(2024, 1, 2, 23, 0, 0))
-//                .end(LocalDateTime.of(2024, 1, 2, 23, 1, 0))
-//                .status(Status.WAITING)
-//                .build();
-//        Long itemId = 100L;
-//        when(itemStorage.findById(itemId)).thenReturn(Optional.empty());
-//        assertThrows(ValidException.class, () -> bookingService.addBooking(100L, bookingRequestDto));
-//    }
 
     @Test
     void updateBookingTest() {
@@ -261,78 +249,67 @@ public class BookingServiceTest {
         assertEquals(booking.getId(), result.getId());
 
     }
-//
-//    @Test
-//    void getBookingsOfOwner() {
-//        if (!userStorage.existsById(ownerId)) {
-//            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
-//        }
-//        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
-//        State bookingState;
-//        try {
-//            bookingState = State.valueOf(state);
-//        } catch (IllegalArgumentException e) {
-//            throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
-//        }
-//        LocalDateTime now = LocalDateTime.now();
-//        switch (bookingState) {
-//            case ALL:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_Id(ownerId, pageable).getContent());
-//            case CURRENT:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(ownerId, now, now, pageable).getContent());
-//            case PAST:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_IdAndEndIsBefore(ownerId, now, pageable).getContent());
-//            case FUTURE:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_IdAndStartIsAfter(ownerId, now, pageable).getContent());
-//            case WAITING:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_IdAndStatus(ownerId, WAITING, pageable).getContent());
-//            case REJECTED:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByItem_Owner_IdAndStatus(ownerId, REJECTED, pageable).getContent());
-//            default:
-//                throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
-//        }
-//    }
-//
-//    @Test
-//    void getBookingsOfBooker() {
-//        if (!userStorage.existsById(bookerId)) {
-//            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
-//        }
-//        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
-//        State bookingState;
-//        try {
-//            bookingState = State.valueOf(state);
-//        } catch (IllegalArgumentException e) {
-//            throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
-//        }
-//        LocalDateTime now = LocalDateTime.now();
-//        switch (bookingState) {
-//            case ALL:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_Id(bookerId, pageable).getContent());
-//            case CURRENT:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(bookerId, now, now, pageable).getContent());
-//            case PAST:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_IdAndEndIsBefore(bookerId, now, pageable).getContent());
-//            case FUTURE:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_IdAndStartIsAfter(bookerId, now, pageable).getContent());
-//            case WAITING:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_IdAndStatus(bookerId, WAITING, pageable).getContent());
-//            case REJECTED:
-//                return bookingMapper.toBookingResponseListDto(
-//                        bookingStorage.findAllByBooker_IdAndStatus(bookerId, REJECTED, pageable).getContent());
-//            default:
-//                throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
-//        }
-//    }
+
+    @Test
+    void getBooking_UserNotRelatedToBooking_ExceptionThrown() {
+        Long userId = 1L;
+        Long bookingId = 3L;
+        Booking booking = mock(Booking.class);
+        User booker = mock(User.class);
+        Item item = mock(Item.class);
+        User owner = mock(User.class);
+
+        when(booking.getBooker()).thenReturn(booker);
+        when(booker.getId()).thenReturn(2L);
+        when(booking.getItem()).thenReturn(item);
+        when(item.getOwner()).thenReturn(owner);
+        when(owner.getId()).thenReturn(3L);
+        when(bookingStorage.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThrows(ValidException.class, () -> bookingService.getBooking(userId, bookingId));
+    }
+
+    @Test
+    void getBookingsOfBooker_InvalidBookerId_ExceptionThrown() {
+        Long bookerId = 2L;
+        String state = "ALL";
+        Integer from = 0;
+        Integer size = 5;
+
+        when(userStorage.existsById(bookerId)).thenReturn(false);
+
+        assertThrows(ValidException.class, () -> bookingService.getBookingsOfBooker(bookerId, state, from, size));
+
+    }
+
+    @Test
+    public void getBookingsOfBooker_InvalidState_ExceptionThrown() {
+        Long bookerId = 1L;
+        String state = "INVALID_STATE";
+        Integer from = 0;
+        Integer size = 5;
+
+        when(userStorage.existsById(bookerId)).thenReturn(true);
+
+
+        assertThrows(ValidException.class, () -> bookingService.getBookingsOfBooker(bookerId, state, from, size));
+    }
+
+    @Test
+    void updateBooking_AlreadyApproved_ExceptionThrown() {
+        Long userId = 1L;
+        Long bookingId = 4L;
+        Boolean approved = true;
+        Booking booking = mock(Booking.class);
+        Item item = mock(Item.class);
+        User owner = mock(User.class);
+
+        when(bookingStorage.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(booking.getItem()).thenReturn(item);
+        when(item.getOwner()).thenReturn(owner);
+        when(owner.getId()).thenReturn(userId);
+        when(booking.getStatus()).thenReturn(Status.APPROVED);
+
+        assertThrows(ValidException.class, () -> bookingService.updateBooking(userId, bookingId, approved));
+    }
 }

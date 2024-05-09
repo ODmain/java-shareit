@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.ValidException;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -140,137 +141,23 @@ public class ItemServiceTest {
         assertThrows(ValidException.class, () -> itemService.updateItem(itemRequestDto, itemId, userId));
     }
 
-//    @Test
-//    void getItem() {
-//        Long itemId = 1L;
-//        Long userId = 1L;
-//        Item item = new Item();
-//        item.setId(itemId);
-//        User user = new User();
-//        user.setId(userId);
-//        item.setOwner(user);
-//        item.setName("Test Item");
-//        Booking booking1 = new Booking();
-//        booking1.setStart(LocalDateTime.now().minusDays(1));
-//        Booking booking2 = new Booking();
-//        booking2.setStart(LocalDateTime.now().plusDays(1));
-//        List<Booking> bookings = new ArrayList<>();
-//        bookings.add(booking1);
-//        bookings.add(booking2);
-//        CommentResponseDto comment1 = new CommentResponseDto();
-//        comment1.setItemId(itemId);
-//        CommentResponseDto comment2 = new CommentResponseDto();
-//        comment2.setItemId(itemId);
-//        List<CommentResponseDto> comments = new ArrayList<>();
-//        comments.add(comment1);
-//        comments.add(comment2);
-//        Comment commentt = new Comment();
-//        comment1.setItemId(itemId);
-//        Comment commenttt = new Comment();
-//        comment2.setItemId(itemId);
-//        List<Comment> commentss = new ArrayList<>();
-//        commentss.add(commentt);
-//        commentss.add(commenttt);
-//
-//        BookingShortDto lastBooking = new BookingShortDto();
-//        lastBooking.setId(1L);
-//        BookingShortDto nextBooking = new BookingShortDto();
-//        nextBooking.setId(2L);
-//        ItemWithBookingsDto responseDto = new ItemWithBookingsDto();
-//        responseDto.setName(item.getName());
-//        responseDto.setLastBooking(lastBooking);
-//        responseDto.setNextBooking(nextBooking);
-//        responseDto.setComments(comments);
-//
-//        when(itemStorage.findById(itemId)).thenReturn(Optional.of(item));
-//        when(bookingStorage.findAllByItem_IdAndStatusIsNot(itemId, Status.REJECTED)).thenReturn(bookings);
-//        when(commentStorage.findAllByItem_IdOrderByCreatedDesc(itemId)).thenReturn(commentss);
-//        itemStorage.save(item);
-//        ItemWithBookingsDto result = itemService.getItem(itemId, userId);
-//        result.setName(item.getName());
-//        result.setComments(comments);
-//        result.setNextBooking(nextBooking);
-//        result.setLastBooking(lastBooking);
-//
-//
-//        assertEquals(item.getName(), result.getName());
-//        assertEquals(comments.size(), result.getComments().size());
-//        assertNotNull(result.getLastBooking());
-//        assertNotNull(result.getNextBooking());
-//
-//
-//    }
+    @Test
+    void updateItem_NullItemRequestDto_ExceptionThrown() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        ItemRequestDto itemRequestDto = null;
 
-//    @Test
-//    void getItemsOfOwner() {
-//        List<ItemWithBookingsDto> responseItems = itemMapper.toItemWithBookingsListDto(itemStorage.findAllByOwnerIdOrderById(userId));
-//        List<Long> itemsIds = responseItems.stream()
-//                .map(ItemWithBookingsDto::getId)
-//                .collect(Collectors.toList());
-//        Map<Long, List<BookingResponseDto>> bookings = bookingStorage.findAllByItem_IdInAndStatusIsNot(itemsIds, REJECTED).stream()
-//                .map(bookingMapper::toBookingResponseDto)
-//                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
-//        Map<Long, List<CommentResponseDto>> comments = commentStorage.findAllByItem_IdInOrderByCreatedDesc(itemsIds).stream()
-//                .map(commentMapper::toCommentResponseDto)
-//                .collect(Collectors.groupingBy(CommentResponseDto::getItemId));
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        return responseItems.stream().map(itemDto -> {
-//            Long itemId = itemDto.getId();
-//            return getItemWithBookingsAndCommentsDto(itemDto, comments.get(itemId), bookings.get(itemId), now);
-//        }).collect(Collectors.toList());
-//
-//
-//    }
-//
-//
-//}
+        assertThrows(ValidException.class, () -> itemService.updateItem(itemRequestDto, userId, itemId));
+    }
 
-//    @Test
-//    void searchItem() {
-//        int from = 0;
-//        int size = 10;
-//        Pageable pageable = Paginator.getPageable(from, size);
-//        String text = "text";
-//        List<Item> itemList = new ArrayList<>();
-//        itemList.add(new Item());
-//        itemList.add(new Item());
-//        itemList.add(new Item());
-//        Page<Item> itemPage = new PageImpl<>(itemList, PageRequest.of(0, 10), itemList.size());
-//
-//        when(itemMapper.toItemResponseDto(Mockito.any(Item.class))).thenReturn(new ItemDto());
-//        when(itemRepository.searchByNameAndDescriptionAndAvailable(text, pageable)).thenReturn(itemPage);
-//
-//        List<ItemDto> response = itemService.searchAvailableItem(text, from, size);
-//        assertEquals(itemList.size(), response.size());
-//
-//        when(itemMapper.toItemResponseListDto(List.of(item))).thenReturn(List.of(itemResponseDto));
-//        List<Item> result = itemStorage.searchItem("vvv");
-//        assertEquals(result.size(), 1);
-//    }
+    @Test
+    void addComment_UserNotFound_ExceptionThrown() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
 
-//    @Test
-//    void addComment() {
-//        if (!userStorage.existsById(userId)) {
-//            throw new ValidException("Пользователя с таким id не существует", HttpStatus.NOT_FOUND);
-//        }
-//        if (!itemStorage.existsById(itemId)) {
-//            throw new ValidException("Предмета с таким id не существует", HttpStatus.NOT_FOUND);
-//        }
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        boolean isBookingConfirmed = bookingStorage.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
-//        if (!isBookingConfirmed) {
-//            throw new ValidException("Пользователь не брал в аренду этот предмет", HttpStatus.BAD_REQUEST);
-//        }
-//        UserDto userDto = userMapper.toUserDto(userStorage.findById(userId).orElseThrow(() -> new ValidException("Пользователя с таким id не существует", HttpStatus.NOT_FOUND)));
-//        commentRequestDto.setCreated(now);
-//        commentRequestDto.setAuthorId(userId);
-//        commentRequestDto.setItemId(itemId);
-//
-//        CommentResponseDto commentResponseDto = commentMapper.toCommentResponseDto(commentStorage.save(commentMapper.toCommentFromRequest(commentRequestDto)));
-//        commentResponseDto.setAuthorName(userDto.getName());
-//
-//        return commentResponseDto;
-//    }
+        when(userStorage.existsById(userId)).thenReturn(false);
+
+        assertThrows(ValidException.class, () -> itemService.addComment(userId, itemId, commentRequestDto));
+    }
 }
