@@ -13,25 +13,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.constant.Status;
 import ru.practicum.shareit.exception.ValidException;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Slf4j
 @SpringBootTest
@@ -48,6 +47,9 @@ class ItemControllerIntegrationTest {
 
     @Autowired
     private BookingService bookingService;
+
+    @Autowired
+    ItemRequestStorage itemRequestStorage;
 
     private ItemRequestDto itemRequestDto;
     private ItemResponseDto itemResponseDto;
@@ -208,42 +210,40 @@ class ItemControllerIntegrationTest {
                 .andReturn();
     }
 
-//    @Test
-//    @Order(5)
-//    @SneakyThrows
-//    public void testGetItem_ReturnsStatusOk() {
-//        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
-//        itemResponseDto11 = ItemResponseDto.builder()
-//                .requestId(1L)
-//                .build();
-//
-//
-//        mvc.perform(get("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemResponseDto11)));
-//    }
+    @Test
+    @Order(5)
+    @SneakyThrows
+    public void testGetItem_ReturnsStatusOk() {
+        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
+        itemResponseDto11 = ItemResponseDto.builder()
+                .requestId(1L)
+                .build();
 
-//    @Test
-//    @Order(6)
-//    @SneakyThrows
-//    public void testGetItem_WithUserIdNotOwner_ReturnsStatusOk() {
-//        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
-//        itemResponseDto = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .name("Дрель")
-//                .description("Простая дрель")
-//                .available(true)
-//                .requestId(1L)
-//                .build();
-//
-//        mvc.perform(get("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemResponseDto11)));
-//    }
+
+        mvc.perform(get("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(6)
+    @SneakyThrows
+    public void testGetItem_WithUserIdNotOwner_ReturnsStatusOk() {
+        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
+        itemResponseDto = ItemResponseDto.builder()
+                .id(itemId1)
+                .name("Дрель")
+                .description("Простая дрель")
+                .available(true)
+                .requestId(1L)
+                .build();
+
+        mvc.perform(get("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId2)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(7)
@@ -259,48 +259,47 @@ class ItemControllerIntegrationTest {
                         ValidException.class));
     }
 
-//    @Test
-//    @Order(8)
-//    @SneakyThrows
-//    public void testGetItem_WithInvalidUserId_ReturnsStatusNotFound() {
-//        setUp();
-//
-//        mvc.perform(get("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", invalidId)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNotFound())
-//                .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
-//                        ValidException.class));
-//    }
+    @Test
+    @Order(8)
+    @SneakyThrows
+    public void testGetItem_WithInvalidUserId_ReturnsStatusNotFound() {
+        setUp();
 
-//    @Test
-//    @Order(9)
-//    @SneakyThrows
-//    public void testGetAllItems_WithOwnerId_ReturnsStatusOk() {
-//
-//        ItemResponseDto itemOutputDTO1 = ItemResponseDto.builder()
-//                .id(2L)
-//                .name("Отвертка")
-//                .description("Аккумуляторная отвертка")
-//                .available(true)
-//                .build();
-//
-//        ItemResponseDto itemOutputDTO2 = ItemResponseDto.builder()
-//                .id(3L)
-//                .name("Клей Момент")
-//                .description("Тюбик суперклея марки Момент")
-//                .available(true)
-//                .build();
-//        List<ItemResponseDto> items = Arrays.asList(itemOutputDTO1, itemOutputDTO2);
-//
-//        mvc.perform(get("/items")
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(items)));
-//    }
+        mvc.perform(get("/items/{itemId}", invalidId)
+                        .header("X-Sharer-User-Id", invalidId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
+                        ValidException.class));
+    }
+
+    @Test
+    @Order(9)
+    @SneakyThrows
+    public void testGetAllItems_WithOwnerId_ReturnsStatusOk() {
+
+        ItemResponseDto itemOutputDTO1 = ItemResponseDto.builder()
+                .id(2L)
+                .name("Отвертка")
+                .description("Аккумуляторная отвертка")
+                .available(true)
+                .build();
+
+        ItemResponseDto itemOutputDTO2 = ItemResponseDto.builder()
+                .id(3L)
+                .name("Клей Момент")
+                .description("Тюбик суперклея марки Момент")
+                .available(true)
+                .build();
+        List<ItemResponseDto> items = Arrays.asList(itemOutputDTO1, itemOutputDTO2);
+
+        mvc.perform(get("/items")
+                        .header("X-Sharer-User-Id", userId2)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(10)
@@ -327,95 +326,93 @@ class ItemControllerIntegrationTest {
                 .andExpect(content().json(mapper.writeValueAsString(items)));
     }
 
-//    @Test
-//    @Order(11)
-//    @SneakyThrows
-//    public void testAddComment_ReturnsStatusOk() {
-//        setUp();
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        BookingRequestDto bookingInputDTO = BookingRequestDto.builder()
-//                .start(now.minusHours(2))
-//                .end(now.minusHours(1))
-//                .status(Status.APPROVED)
-//                .bookerId(userId2)
-//                .itemId(itemId1)
-//                .build();
-//        bookingService.addBooking(1L, bookingInputDTO);
-//        bookingService.updateBooking(userId1, itemId1, true);
-//
-//        CommentRequestDto commentInputDTO = CommentRequestDto.builder()
-//                .text("Add comment from user1")
-//                .build();
-//
-//        CommentResponseDto commentOutputDTO = CommentResponseDto.builder()
-//                .id(1L)
-//                .text("Add comment from user1")
-//                .authorName("ComCom")
-//                .created(now)
-//                .build();
-//
-//        mvc.perform(post("/items/{itemId}/comment", itemId1)
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .content(mapper.writeValueAsString(commentInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.text", is(commentOutputDTO.getText())))
-//                .andExpect(jsonPath("$.authorName", is(commentOutputDTO.getAuthorName())));
-//    }
+    @Test
+    @Order(11)
+    @SneakyThrows
+    public void testAddComment_ReturnsStatusOk() {
+        setUp();
+        LocalDateTime now = LocalDateTime.now();
 
-//    @Test
-//    @Order(12)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyName_ReturnsStatusOk() {
-//        setUp();
-//
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .name("Дрель++")
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .name("Дрель++")
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemShortOutputDTO)));
-//    }
+        BookingRequestDto bookingInputDTO = BookingRequestDto.builder()
+                .start(now.minusHours(2))
+                .end(now.minusHours(1))
+                .status(Status.APPROVED)
+                .bookerId(userId2)
+                .itemId(itemId1)
+                .build();
+        bookingService.addBooking(2L, bookingInputDTO);
+        bookingService.updateBooking(userId1, itemId1, true);
 
-//    @Test
-//    @Order(13)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyDescription_ReturnsStatusOk() {
-//        setUp();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .description("Простая дрель++")
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .description("Простая дрель++")
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemShortOutputDTO)));
-//    }
+        CommentRequestDto commentInputDTO = CommentRequestDto.builder()
+                .text("Add comment from user1")
+                .build();
+
+        CommentResponseDto commentOutputDTO = CommentResponseDto.builder()
+                .id(1L)
+                .text("Add comment from user1")
+                .authorName("ComCom")
+                .created(now)
+                .build();
+
+        mvc.perform(post("/items/{itemId}/comment", itemId1)
+                        .header("X-Sharer-User-Id", userId2)
+                        .content(mapper.writeValueAsString(commentInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text", is(commentOutputDTO.getText())))
+                .andExpect(jsonPath("$.authorName", is(commentOutputDTO.getAuthorName())));
+    }
+
+    @Test
+    @Order(12)
+    @SneakyThrows
+    public void testUpdateItem_OnlyName_ReturnsStatusOk() {
+        setUp();
+
+        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
+                .id(itemId1)
+                .name("Дрель++")
+                .build();
+        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
+                .id(itemId1)
+                .name("Дрель++")
+                .available(true)
+                .build();
+
+        mvc.perform(patch("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId1)
+                        .content(mapper.writeValueAsString(itemInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(13)
+    @SneakyThrows
+    public void testUpdateItem_OnlyDescription_ReturnsStatusOk() {
+        setUp();
+        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
+                .id(itemId1)
+                .description("Простая дрель++")
+                .build();
+        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
+                .id(itemId1)
+                .description("Простая дрель++")
+                .available(true)
+                .build();
+
+        mvc.perform(patch("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId1)
+                        .content(mapper.writeValueAsString(itemInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(14)
@@ -459,90 +456,87 @@ class ItemControllerIntegrationTest {
                         ValidException.class));
     }
 
-//    @Test
-//    @Order(16)
-//    @SneakyThrows
-//    public void testCreate_WithItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//
-//        ItemRequest itemRequest = ItemRequest.builder().description("Нужен диван").requester(user2).build();
-//        ItemRequestStorage.save(itemRequest);
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .name("Диван")
-//                .description("Мягкий диван.")
-//                .available(true)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemOutputDTO = ItemResponseDto.builder()
-//                .id(4L)
-//                .name("Диван")
-//                .description("Мягкий диван.")
-//                .available(true)
-//                .requestId(1L)
-//                .build();
-//
-//        mvc.perform(post("/items")
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("id", is(itemOutputDTO.getId()), Long.class))
-//                .andExpect(jsonPath("name", is(itemOutputDTO.getName())))
-//                .andExpect(jsonPath("description", is(itemOutputDTO.getDescription())))
-//                .andExpect(jsonPath("available", is(itemOutputDTO.getAvailable())));
-//    }
-//
-//    @Test
-//    @Order(17)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemShortOutputDTO)));
-//    }
-//
-//    @Test
-//    @Order(18)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyNameAndHaveItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(itemShortOutputDTO)));
-//    }
+    @Test
+    @Order(16)
+    @SneakyThrows
+    public void testCreate_WithItemRequestId_ReturnsStatusOk() {
+        setUp();
+
+        ItemRequest itemRequest = ItemRequest.builder().description("Нужен диван").requester(user2).build();
+        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
+                .name("Диван")
+                .description("Мягкий диван.")
+                .available(true)
+                .requestId(1L)
+                .build();
+        ItemResponseDto itemOutputDTO = ItemResponseDto.builder()
+                .id(4L)
+                .name("Диван")
+                .description("Мягкий диван.")
+                .available(true)
+                .requestId(1L)
+                .build();
+
+        mvc.perform(post("/items")
+                        .header("X-Sharer-User-Id", userId1)
+                        .content(mapper.writeValueAsString(itemInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id", is(itemOutputDTO.getId()), Long.class))
+                .andExpect(jsonPath("name", is(itemOutputDTO.getName())))
+                .andExpect(jsonPath("description", is(itemOutputDTO.getDescription())))
+                .andExpect(jsonPath("available", is(itemOutputDTO.getAvailable())));
+    }
+
+    @Test
+    @Order(17)
+    @SneakyThrows
+    public void testUpdateItem_OnlyItemRequestId_ReturnsStatusOk() {
+        setUp();
+        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
+                .id(itemId1)
+                .requestId(1L)
+                .build();
+        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
+                .id(itemId1)
+                .requestId(1L)
+                .available(true)
+                .build();
+
+        mvc.perform(patch("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId1)
+                        .content(mapper.writeValueAsString(itemInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(18)
+    @SneakyThrows
+    public void testUpdateItem_OnlyNameAndHaveItemRequestId_ReturnsStatusOk() {
+        setUp();
+        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
+                .id(itemId1)
+                .requestId(1L)
+                .build();
+        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
+                .id(itemId1)
+                .requestId(1L)
+                .available(true)
+                .build();
+
+        mvc.perform(patch("/items/{itemId}", itemId1)
+                        .header("X-Sharer-User-Id", userId1)
+                        .content(mapper.writeValueAsString(itemInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(19)
