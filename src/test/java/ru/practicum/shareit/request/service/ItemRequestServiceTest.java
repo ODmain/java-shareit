@@ -48,43 +48,6 @@ public class ItemRequestServiceTest {
     @Mock
     private ItemMapper itemMapper;
 
-//    @Test
-//    void addItemRequest() {
-//        User user = new User();
-//        user.setId(userId);
-//        userStorage.save(user);
-//        ItemRequest itemRequest = ItemRequest.builder()
-//                .id(itemRequestId)
-//                .description("Хотел бы воспользоваться щёткой для обуви")
-//                .created(now)
-//                .requester(User.builder()
-//                        .id(userId)
-//                        .name("RuRu")
-//                        .email("RuRu@yandex.ru")
-//                        .build())
-//                .build();
-//
-//        ItemRequestInDto itemRequestInDto = ItemRequestInDto.builder()
-//                .description("Хотел бы воспользоваться щёткой для обуви")
-//                .build();
-//
-//        ItemRequestOutDto itemRequestOutDto = ItemRequestOutDto.builder()
-//                .id(itemRequestId)
-//                .description("Хотел бы воспользоваться щёткой для обуви")
-//                .created(now)
-//                .requester(user)
-//                .items(new ArrayList<>())
-//                .build();
-//
-//        when(userStorage.existsById(userId)).thenReturn(true);
-//        when(userStorage.findById(userId)).thenReturn(Optional.of(user));
-//        when(itemRequestStorage.save(itemRequest)).thenReturn(itemRequest);
-//        when(itemRequestMapper.toItemRequestOutDto(itemRequest)).thenReturn(itemRequestOutDto);
-//
-//        assertEquals(itemRequestOutDto, itemRequestService.addItemRequest(itemRequestInDto, userId));
-//
-//    }
-
     @Test
     void addItemRequest_NotExistUserTest() {
         Long userId = 100L;
@@ -169,37 +132,4 @@ public class ItemRequestServiceTest {
         Long userId = 100L;
         assertThrows(ValidException.class, () -> itemRequestService.getAllMineRequests(userId));
     }
-
-
-//    @Test
-//    void getAllItemRequests() {
-//        Long userId = 1L;
-//        User user = new User();
-//        user.setId(1L);
-//        ItemRequest itemRequest = new ItemRequest();
-//        itemRequest.setId(1L);
-//        itemRequest.setRequester(user);
-//        ItemRequestOutDto itemRequestOutDto = new ItemRequestOutDto();
-//        itemRequestOutDto.setId(1L);
-//        itemRequestOutDto.setRequester(user);
-//        Item item = new Item();
-//        item.setId(1L);
-//        item.setRequestId(1L);
-//        ItemResponseDto itemResponseDto = new ItemResponseDto();
-//        itemResponseDto.setId(1L);
-//        itemResponseDto.setRequestId(1L);
-//        List<ItemRequest> itemList = new ArrayList<>();
-//        itemList.add(new ItemRequest());
-//        itemList.add(new ItemRequest());
-//        itemList.add(new ItemRequest());
-//        List<ItemRequest> itemRequests = List.of(itemRequest);
-//        List<ItemRequestOutDto> itemRequestOutputDTOS = List.of(itemRequestOutDto);
-//
-//        when(userStorage.existsById(userId)).thenReturn(true);
-//        when(itemRequestStorage.findAllFromOtherUsers(userId, 0, 10)).thenReturn(itemRequests);
-//        when(itemRequestMapper.toItemRequestOutListDto(itemRequests)).thenReturn(itemRequestOutputDTOS);
-//
-//        assertEquals(itemRequestOutputDTOS, itemRequestService.getAllItemRequests(userId, 0, 10));
-//
-//    }
 }

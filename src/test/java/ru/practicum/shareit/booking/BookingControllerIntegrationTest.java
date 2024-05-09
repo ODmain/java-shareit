@@ -313,42 +313,39 @@ public class BookingControllerIntegrationTest {
                 .andReturn();
     }
 
-//    @Test
-//    @Order(7)
-//    @SneakyThrows
-//    public void testUpdateBooking_WithRejectedAfterApproved_ResulStatusBadRequest() {
-//        setUpBooking();
-//
-//        mvc.perform(patch("/bookings/{bookingId}", bookingId1)
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .param("approved", "false")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
-//                        ValidException.class));
-//    }
+    @Test
+    @Order(7)
+    @SneakyThrows
+    public void testUpdateBooking_WithRejectedAfterApproved_ResulStatusBadRequest() {
+        setUpBooking();
 
-//    @Test
-//    @Order(8)
-//    @SneakyThrows
-//    public void testGetAllBookings_WithUserBookerAndStateAll_ResulStatusOk() {
-//        setUpBooking();
-//
-//        bookingOutputDTO = BookingResponseDto.builder()
-//                .id(bookingId1)
-//                .build();
-//        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
-//
-//        mvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .param("state", "ALL")
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(bookings)));
-//    }
+        mvc.perform(patch("/bookings/{bookingId}", bookingId1)
+                        .header("X-Sharer-User-Id", userId2)
+                        .param("approved", "false")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(8)
+    @SneakyThrows
+    public void testGetAllBookings_WithUserBookerAndStateAll_ResulStatusOk() {
+        setUpBooking();
+
+        bookingOutputDTO = BookingResponseDto.builder()
+                .id(bookingId1)
+                .build();
+        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
+
+        mvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId1)
+                        .param("state", "ALL")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(9)
@@ -382,26 +379,25 @@ public class BookingControllerIntegrationTest {
                 .andExpect(content().json(mapper.writeValueAsString(List.of())));
     }
 
-//    @Test
-//    @Order(11)
-//    @SneakyThrows
-//    public void testGetAllBookings_WithUserBookerAndStateFuture_ResulStatusOk() {
-//        setUpBooking();
-//
-//        bookingOutputDTO = BookingResponseDto.builder()
-//                .id(bookingId1)
-//                .build();
-//        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
-//
-//        mvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .param("state", "FUTURE")
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(bookings)));
-//    }
+    @Test
+    @Order(11)
+    @SneakyThrows
+    public void testGetAllBookings_WithUserBookerAndStateFuture_ResulStatusOk() {
+        setUpBooking();
+
+        bookingOutputDTO = BookingResponseDto.builder()
+                .id(bookingId1)
+                .build();
+        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
+
+        mvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId1)
+                        .param("state", "FUTURE")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(12)
@@ -419,21 +415,20 @@ public class BookingControllerIntegrationTest {
                 .andExpect(content().json(mapper.writeValueAsString(List.of())));
     }
 
-//    @Test
-//    @Order(13)
-//    @SneakyThrows
-//    public void testGetAllBookings_WithUserBookerAndStateRejected_ResulStatusOk() {
-//        setUpBooking();
-//
-//        mvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .param("state", "REJECTED")
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(List.of())));
-//    }
+    @Test
+    @Order(13)
+    @SneakyThrows
+    public void testGetAllBookings_WithUserBookerAndStateRejected_ResulStatusOk() {
+        setUpBooking();
+
+        mvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId1)
+                        .param("state", "REJECTED")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(14)
@@ -469,26 +464,25 @@ public class BookingControllerIntegrationTest {
     }
 
 
-//    @Test
-//    @Order(16)
-//    @SneakyThrows
-//    public void testGetAllBookings_WithUserItemOwner_ResulStatusOk() {
-//        setUpBooking();
-//
-//        bookingOutputDTO = BookingResponseDto.builder()
-//                .id(bookingId1)
-//                .build();
-//        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
-//
-//        mvc.perform(get("/bookings/owner")
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .param("state", "ALL")
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(bookings)));
-//    }
+    @Test
+    @Order(16)
+    @SneakyThrows
+    public void testGetAllBookings_WithUserItemOwner_ResulStatusOk() {
+        setUpBooking();
+
+        bookingOutputDTO = BookingResponseDto.builder()
+                .id(bookingId1)
+                .build();
+        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
+
+        mvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userId2)
+                        .param("state", "ALL")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(17)
@@ -558,21 +552,20 @@ public class BookingControllerIntegrationTest {
                 .andExpect(content().json(mapper.writeValueAsString(List.of())));
     }
 
-//    @Test
-//    @Order(21)
-//    @SneakyThrows
-//    public void testGetAllBookings_WithUserItemOwnerAndStateRejected_ResulStatusOk() {
-//        setUpBooking();
-//
-//        mvc.perform(get("/bookings/owner")
-//                        .header("X-Sharer-User-Id", userId2)
-//                        .param("state", "REJECTED")
-//                        .param("from", String.valueOf(from))
-//                        .param("size", String.valueOf(size))
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().json(mapper.writeValueAsString(List.of())));
-//    }
+    @Test
+    @Order(21)
+    @SneakyThrows
+    public void testGetAllBookings_WithUserItemOwnerAndStateRejected_ResulStatusOk() {
+        setUpBooking();
+
+        mvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userId2)
+                        .param("state", "REJECTED")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(22)
