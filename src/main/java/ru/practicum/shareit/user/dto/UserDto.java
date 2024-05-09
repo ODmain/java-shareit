@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 import static ru.practicum.shareit.constant.Constant.REGEX_EMAIL;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class UserDto {
     @Positive
     private Long id;
@@ -20,4 +20,10 @@ public class UserDto {
     @NotEmpty
     @Email(regexp = REGEX_EMAIL, message = "В 'email' использованы запрещённые символы")
     private String email;
+
+    public UserDto(Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
 }

@@ -1,14 +1,17 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
+@Validated
 @RestController
 @RequestMapping(path = "/items")
 @RequiredArgsConstructor
@@ -36,13 +39,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithBookingsDto> getItemsOfOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getItemsOfOwner(userId);
+    public List<ItemWithBookingsDto> getItemsOfOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                     @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                     @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+        return itemService.getItemsOfOwner(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemResponseDto> searchForTheItem(@RequestParam String text) {
-        return itemService.searchItem(text);
+    public List<ItemResponseDto> searchForTheItem(@RequestParam String text,
+                                                  @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                  @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+        return itemService.searchItem(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
