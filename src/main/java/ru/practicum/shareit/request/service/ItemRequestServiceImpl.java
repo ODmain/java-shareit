@@ -51,9 +51,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public ItemRequestOutDto getItemRequestById(Long userId, Long requestId) {
-        if (!userStorage.existsById(userId)) {
-            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
-        }
+        findUserById(userId);
         ItemRequest itemRequest = itemRequestStorage.findById(requestId).orElseThrow(() ->
                 new ValidException("Запроса на предмет с таким id нет", HttpStatus.NOT_FOUND));
         ItemRequestOutDto itemRequestOutDto = itemRequestMapper.toItemRequestOutDto(itemRequest);
@@ -66,9 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemRequestOutDto> getAllMineRequests(Long userId) {
-        if (!userStorage.existsById(userId)) {
-            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
-        }
+        findUserById(userId);
         List<ItemRequest> itemRequests = itemRequestStorage.findAllByRequesterId(userId);
         return getItemRequestOutDtoList(itemRequests);
     }
@@ -76,9 +72,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemRequestOutDto> getAllItemRequests(Long userId, Integer from, Integer size) {
-        if (!userStorage.existsById(userId)) {
-            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
-        }
+        findUserById(userId);
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
         List<ItemRequest> itemRequests = itemRequestStorage.findAllByRequesterIdNot(userId, pageable).getContent();
         return getItemRequestOutDtoList(itemRequests);
@@ -96,5 +90,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                         .filter(b -> Objects.equals(b.getRequestId(), a.getId()))
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
+    }
+
+    private void findUserById(Long userId) {
+        if (!userStorage.existsById(userId)) {
+            throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
+        }
     }
 }
