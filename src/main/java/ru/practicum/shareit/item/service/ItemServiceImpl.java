@@ -97,7 +97,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemWithBookingsDto> getItemsOfOwner(Long userId) {
+    public List<ItemWithBookingsDto> getItemsOfOwner(Long userId, Integer from, Integer size) {
         List<ItemWithBookingsDto> responseItems = itemMapper.toItemWithBookingsListDto(itemStorage.findAllByOwnerIdOrderById(userId));
         List<Long> itemsIds = responseItems.stream()
                 .map(ItemWithBookingsDto::getId)
@@ -119,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemResponseDto> searchItem(String text) {
+    public List<ItemResponseDto> searchItem(String text, Integer from, Integer size) {
         if (text.isBlank() || text.isEmpty()) {
             return new ArrayList<>();
         }

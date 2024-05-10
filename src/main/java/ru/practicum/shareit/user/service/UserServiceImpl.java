@@ -42,23 +42,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserDto> getAllUsers() {
-        return userMapper.toUserDtoList(userStorage.findAll());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public UserDto getUser(Long userId) {
         return userMapper.toUserDto(userStorage.findById(userId).orElseThrow(() ->
                 new ValidException("Пользователя с таким id не существует", HttpStatus.NOT_FOUND)));
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<UserDto> getAllUsers() {
+        return userMapper.toUserDtoList(userStorage.findAll());
+    }
+
+    @Override
     @Transactional
     public void deleteUser(Long userId) {
-        if (!userStorage.existsById(userId)) {
-            throw new ValidException("Пользователя с таким id не существует", HttpStatus.NOT_FOUND);
-        }
         userStorage.deleteById(userId);
     }
 }

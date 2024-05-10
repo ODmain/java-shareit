@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +66,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingResponseDto updateBooking(Long userId, Long bookingId, Boolean approved) {
-
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(() ->
                 new ValidException("Пользователя с таким id не существует", HttpStatus.NOT_FOUND));
         if (!booking.getItem().getOwner().getId().equals(userId)) {
@@ -97,10 +99,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingResponseDto> getBookingsOfOwner(Long ownerId, String state) {
+    public List<BookingResponseDto> getBookingsOfOwner(Long ownerId, String state, Integer from, Integer size) {
         if (!userStorage.existsById(ownerId)) {
             throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
         }
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
         State bookingState;
         try {
             bookingState = State.valueOf(state);
@@ -111,22 +114,22 @@ public class BookingServiceImpl implements BookingService {
         switch (bookingState) {
             case ALL:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdOrderByStartDesc(ownerId));
+                        bookingStorage.findAllByItem_Owner_Id(ownerId, pageable).getContent());
             case CURRENT:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, now, now));
+                        bookingStorage.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(ownerId, now, now, pageable).getContent());
             case PAST:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(ownerId, now));
+                        bookingStorage.findAllByItem_Owner_IdAndEndIsBefore(ownerId, now, pageable).getContent());
             case FUTURE:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdAndStartIsAfterOrderByStartDesc(ownerId, now));
+                        bookingStorage.findAllByItem_Owner_IdAndStartIsAfter(ownerId, now, pageable).getContent());
             case WAITING:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, WAITING));
+                        bookingStorage.findAllByItem_Owner_IdAndStatus(ownerId, WAITING, pageable).getContent());
             case REJECTED:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, REJECTED));
+                        bookingStorage.findAllByItem_Owner_IdAndStatus(ownerId, REJECTED, pageable).getContent());
             default:
                 throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
         }
@@ -135,10 +138,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingResponseDto> getBookingsOfBooker(Long bookerId, String state) {
+    public List<BookingResponseDto> getBookingsOfBooker(Long bookerId, String state, Integer from, Integer size) {
         if (!userStorage.existsById(bookerId)) {
             throw new ValidException("Пользователя с таким id нет", HttpStatus.NOT_FOUND);
         }
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
         State bookingState;
         try {
             bookingState = State.valueOf(state);
@@ -149,22 +153,22 @@ public class BookingServiceImpl implements BookingService {
         switch (bookingState) {
             case ALL:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdOrderByStartDesc(bookerId));
+                        bookingStorage.findAllByBooker_Id(bookerId, pageable).getContent());
             case CURRENT:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(bookerId, now, now));
+                        bookingStorage.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(bookerId, now, now, pageable).getContent());
             case PAST:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(bookerId, now));
+                        bookingStorage.findAllByBooker_IdAndEndIsBefore(bookerId, now, pageable).getContent());
             case FUTURE:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdAndStartIsAfterOrderByStartDesc(bookerId, now));
+                        bookingStorage.findAllByBooker_IdAndStartIsAfter(bookerId, now, pageable).getContent());
             case WAITING:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdAndStatusOrderByStartDesc(bookerId, WAITING));
+                        bookingStorage.findAllByBooker_IdAndStatus(bookerId, WAITING, pageable).getContent());
             case REJECTED:
                 return bookingMapper.toBookingResponseListDto(
-                        bookingStorage.findAllByBooker_IdAndStatusOrderByStartDesc(bookerId, REJECTED));
+                        bookingStorage.findAllByBooker_IdAndStatus(bookerId, REJECTED, pageable).getContent());
             default:
                 throw new ValidException(String.format("Unknown state: %s", state), HttpStatus.BAD_REQUEST);
         }

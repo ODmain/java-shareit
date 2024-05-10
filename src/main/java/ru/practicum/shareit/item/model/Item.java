@@ -28,4 +28,6 @@ public class Item {
     @JoinColumn(name = "owner_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private User owner;
+    @Column
+    private Long requestId;
 }

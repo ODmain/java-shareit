@@ -22,4 +22,5 @@ public interface ItemMapper {
     ItemWithBookingsDto toItemWithBookingsDto(Item item);
 
     List<ItemWithBookingsDto> toItemWithBookingsListDto(List<Item> items);
+
 }
