@@ -84,101 +84,108 @@ public class ItemRequestServiceTest {
         assertThrows(ValidException.class, () -> itemRequestService.addItemRequest(ItemRequestInDto.builder().description("Test description").build(), userId));
     }
 
-//    @Test
-//    public void getItemRequestByIdTest() {
-//        Long userId = 1L;
-//        Long requestId = 1L;
-//        ItemRequest mockItemRequest = new ItemRequest();
-//        ItemRequestOutDto mockItemRequestOutDto = new ItemRequestOutDto();
-//        List<ItemResponseDto> mockItemList = new ArrayList<>();
-//
-//        when(userStorage.existsById(userId)).thenReturn(true);
-//        when(itemRequestStorage.findById(requestId)).thenReturn(Optional.of(mockItemRequest));
-//        when(itemRequestMapper.toItemRequestOutDto(mockItemRequest)).thenReturn(mockItemRequestOutDto);
-//        when(itemStorage.findAllByRequestId(requestId)).thenReturn(new ArrayList<>());
-//        when(itemMapper.toItemResponseDto(any())).thenAnswer(i -> new ItemResponseDto());
-//
-//        ItemRequestOutDto result = itemRequestService.getItemRequestById(userId, requestId);
-//
-//        assertNotNull(result);
-//        verify(itemRequestStorage).findById(requestId);
-//        verify(itemRequestMapper).toItemRequestOutDto(any(ItemRequest.class));
-//        verify(itemStorage).findAllByRequestId(requestId);
-//        verify(itemMapper, times(mockItemList.size())).toItemResponseDto(any());
-//}
+    @Test
+    void getItemRequestByIdTest() {
+        Long userId = 1L;
+        Long requestId = 1L;
+        UserDto userDto = new UserDto(1L, "FF", "fefefe@mail.com");
+        User user = new User(1L, "FF", "fefefe@mail.com");
+        user.setId(userId);
 
-@Test
-void getItemRequest_NotExistUserTest() {
-    Long userId = 100L;
-    Long requestId = 100L;
-    assertThrows(ValidException.class, () -> itemRequestService.getItemRequestById(userId, requestId));
-}
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(requestId);
+        itemRequest.setRequester(user);
 
-@Test
-void getItemRequestById_NotExistItemRequestTest() {
-    Long requestId = 100L;
-    Long userId = 1L;
-    when(userStorage.existsById(userId)).thenReturn(true);
-    when(itemRequestStorage.findById(requestId)).thenReturn(Optional.empty());
-    assertThrows(ValidException.class, () -> itemRequestService.getItemRequestById(userId, requestId));
-}
+        ItemRequestOutDto itemRequestOutDto = new ItemRequestOutDto();
+        itemRequestOutDto.setId(requestId);
+        itemRequestOutDto.setRequester(userDto);
 
-@Test
-void getAllMineRequests() {
-    UserDto userDto = new UserDto(1L, "JOE", "joe@gmail.com");
-    User user = new User();
-    user.setId(1L);
-    ItemRequest itemRequest = new ItemRequest();
-    itemRequest.setId(1L);
-    itemRequest.setRequester(user);
-    ItemRequestOutDto itemRequestOutDto = new ItemRequestOutDto();
-    itemRequestOutDto.setId(1L);
-    itemRequestOutDto.setRequester(userDto);
-    Item item = new Item();
-    item.setId(1L);
-    item.setRequestId(1L);
-    ItemResponseDto itemResponseDto = new ItemResponseDto();
-    itemResponseDto.setId(1L);
-    itemResponseDto.setRequestId(1L);
+        when(userStorage.existsById(userId)).thenReturn(true);
+        when(itemRequestStorage.findById(requestId)).thenReturn(Optional.of(itemRequest));
+        when(itemRequestMapper.toItemRequestOutDto(itemRequest)).thenReturn(itemRequestOutDto);
+        when(itemStorage.findAllByRequestId(requestId)).thenReturn(Collections.singletonList(new Item()));
+        when(itemStorage.findAllByRequestId(requestId)).thenReturn(List.of(new Item()));
+        itemRequestStorage.save(itemRequest);
 
-    when(userStorage.existsById(user.getId())).thenReturn(true);
-    when(itemRequestStorage.findAllByRequesterId(user.getId())).thenReturn(List.of(itemRequest));
-    when(itemStorage.findAllByRequestIdIn(List.of(1L))).thenReturn(List.of(item));
-    when(itemRequestMapper.toItemRequestOutDto(itemRequest)).thenReturn(itemRequestOutDto);
-    when(itemMapper.toItemResponseDto(item)).thenReturn(itemResponseDto);
-    List<ItemRequestOutDto> items = itemRequestService.getAllMineRequests(user.getId());
-    assertNotNull(items);
-    assertEquals(1, items.size());
+        ItemRequestOutDto result = itemRequestService.getItemRequestById(userId, requestId);
+        assertNotNull(result);
+        assertEquals(requestId, result.getId());
+        assertEquals(userDto, result.getRequester());
+        assertEquals(1, result.getItems().size());
+    }
 
-}
+    @Test
+    void getItemRequest_NotExistUserTest() {
+        Long userId = 100L;
+        Long requestId = 100L;
+        assertThrows(ValidException.class, () -> itemRequestService.getItemRequestById(userId, requestId));
+    }
 
-@Test
-void getAllItemRequests_InvalidUserId_ExceptionThrown() {
-    Long userId = 2L;
-    when(userStorage.existsById(userId)).thenReturn(false);
-    assertThrows(ValidException.class, () -> itemRequestService.getAllItemRequests(userId, 0, 5));
-}
+    @Test
+    void getItemRequestById_NotExistItemRequestTest() {
+        Long requestId = 100L;
+        Long userId = 1L;
+        when(userStorage.existsById(userId)).thenReturn(true);
+        when(itemRequestStorage.findById(requestId)).thenReturn(Optional.empty());
+        assertThrows(ValidException.class, () -> itemRequestService.getItemRequestById(userId, requestId));
+    }
 
-@Test
-void getAllMineRequests_NotExistUserTest() {
-    Long userId = 100L;
-    assertThrows(ValidException.class, () -> itemRequestService.getAllMineRequests(userId));
-}
+    @Test
+    void getAllMineRequests() {
+        UserDto userDto = new UserDto(1L, "JOE", "joe@gmail.com");
+        User user = new User();
+        user.setId(1L);
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(1L);
+        itemRequest.setRequester(user);
+        ItemRequestOutDto itemRequestOutDto = new ItemRequestOutDto();
+        itemRequestOutDto.setId(1L);
+        itemRequestOutDto.setRequester(userDto);
+        Item item = new Item();
+        item.setId(1L);
+        item.setRequestId(1L);
+        ItemResponseDto itemResponseDto = new ItemResponseDto();
+        itemResponseDto.setId(1L);
+        itemResponseDto.setRequestId(1L);
 
-@Test
-void getAllItemRequests_ValidUser_EmptyListReturned() {
-    Long userId = 1L;
-    Integer from = 0;
-    Integer size = 10;
-    Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
-    List<ItemRequest> itemRequests = Collections.emptyList();
-    Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
+        when(userStorage.existsById(user.getId())).thenReturn(true);
+        when(itemRequestStorage.findAllByRequesterId(user.getId())).thenReturn(List.of(itemRequest));
+        when(itemStorage.findAllByRequestIdIn(List.of(1L))).thenReturn(List.of(item));
+        when(itemRequestMapper.toItemRequestOutDto(itemRequest)).thenReturn(itemRequestOutDto);
+        when(itemMapper.toItemResponseDto(item)).thenReturn(itemResponseDto);
+        List<ItemRequestOutDto> items = itemRequestService.getAllMineRequests(user.getId());
+        assertNotNull(items);
+        assertEquals(1, items.size());
 
-    when(userStorage.existsById(userId)).thenReturn(true);
-    when(itemRequestStorage.findAllByRequesterIdNot(eq(userId), any(Pageable.class))).thenReturn(pagedResponse);
+    }
 
-    List<ItemRequestOutDto> result = itemRequestService.getAllItemRequests(userId, from, size);
+    @Test
+    void getAllItemRequests_InvalidUserId_ExceptionThrown() {
+        Long userId = 2L;
+        when(userStorage.existsById(userId)).thenReturn(false);
+        assertThrows(ValidException.class, () -> itemRequestService.getAllItemRequests(userId, 0, 5));
+    }
 
-    assertEquals(Collections.emptyList(), result);
-}
+    @Test
+    void getAllMineRequests_NotExistUserTest() {
+        Long userId = 100L;
+        assertThrows(ValidException.class, () -> itemRequestService.getAllMineRequests(userId));
+    }
+
+    @Test
+    void getAllItemRequests_ValidUser_EmptyListReturned() {
+        Long userId = 1L;
+        Integer from = 0;
+        Integer size = 10;
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
+        List<ItemRequest> itemRequests = Collections.emptyList();
+        Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
+
+        when(userStorage.existsById(userId)).thenReturn(true);
+        when(itemRequestStorage.findAllByRequesterIdNot(eq(userId), any(Pageable.class))).thenReturn(pagedResponse);
+
+        List<ItemRequestOutDto> result = itemRequestService.getAllItemRequests(userId, from, size);
+
+        assertEquals(Collections.emptyList(), result);
+    }
 }
