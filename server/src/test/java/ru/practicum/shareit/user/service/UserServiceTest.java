@@ -73,18 +73,6 @@ public class UserServiceTest {
         assertEquals(userDto.getId(), result.getId());
     }
 
-//    @Test
-//    @SneakyThrows
-//    public void updateUser() {
-//        when(userStorage.findById(userDto.getId())).thenReturn(Optional.of(user));
-//        when(userMapper.fromUserDto(userDto)).thenReturn(user);
-//        when(userStorage.save(user)).thenReturn(user);
-//        when(userMapper.toUserDto(user)).thenReturn(userDto);
-//        UserDto result = userService.updateUser(userDto, userDto.getId());
-//        assertNotNull(result);
-//        assertEquals(userDto.getId(), result.getId());
-//    }
-
     @Test
     public void testUpdateUser_userNotFoundTest() {
         Long userId = 100L;

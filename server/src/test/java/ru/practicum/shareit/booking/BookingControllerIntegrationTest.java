@@ -29,7 +29,6 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -336,7 +335,6 @@ public class BookingControllerIntegrationTest {
         bookingOutputDTO = BookingResponseDto.builder()
                 .id(bookingId1)
                 .build();
-        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
 
         mvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId1)
@@ -388,7 +386,6 @@ public class BookingControllerIntegrationTest {
         bookingOutputDTO = BookingResponseDto.builder()
                 .id(bookingId1)
                 .build();
-        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
 
         mvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId1)
@@ -473,7 +470,6 @@ public class BookingControllerIntegrationTest {
         bookingOutputDTO = BookingResponseDto.builder()
                 .id(bookingId1)
                 .build();
-        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
 
         mvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", userId2)
@@ -525,7 +521,6 @@ public class BookingControllerIntegrationTest {
         bookingOutputDTO = BookingResponseDto.builder()
                 .id(bookingId1)
                 .build();
-        List<BookingResponseDto> bookings = Collections.singletonList(bookingOutputDTO);
 
         mvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", userId2)

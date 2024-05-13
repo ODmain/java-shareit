@@ -6,18 +6,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.CommentStorage;
 import ru.practicum.shareit.item.storage.ItemStorage;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -39,21 +34,6 @@ public class ItemServiceTest {
 
     @Mock
     private UserStorage userStorage;
-
-    @Mock
-    private UserMapper userMapper;
-
-    @Mock
-    private BookingStorage bookingStorage;
-
-    @Mock
-    private BookingMapper bookingMapper;
-
-    @Mock
-    private CommentStorage commentStorage;
-
-    @Mock
-    private CommentMapper commentMapper;
 
     @Test
     void addItemTest() {

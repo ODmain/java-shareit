@@ -146,35 +146,6 @@ public class ItemControllerTest {
         assertEquals(objectMapper.writeValueAsString(itemWithBookingsDto), result);
     }
 
-//    @SneakyThrows
-//    @Test
-//    void getItemsOfOwnerTest() {
-//        when(itemService.getItemsOfOwner(1L, 0, 10))
-//                .thenReturn(List.of(itemWithBookingsDto));
-//        String result = mockMvc.perform(get("/items")
-//                        .header("X-Sharer-User-Id", 1))
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//        assertEquals(objectMapper.writeValueAsString(List.of(itemWithBookingsDto)), result);
-//    }
-
-//    @SneakyThrows
-//    @Test
-//    void searchItemsTest() {
-//        when(itemService.searchItem("search_text", 0, 10))
-//                .thenReturn(List.of(itemResponseDto));
-//        String result = mockMvc.perform(get("/items/search?text=search_text")
-//                        .header("X-Sharer-User-Id", 1)
-//                        .contentType("application/json"))
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//        assertEquals(objectMapper.writeValueAsString(List.of(itemResponseDto)), result);
-//    }
-
     @SneakyThrows
     @Test
     void createCommentTest() {

@@ -7,7 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -177,7 +179,6 @@ public class ItemRequestServiceTest {
         Long userId = 1L;
         Integer from = 0;
         Integer size = 10;
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
         List<ItemRequest> itemRequests = Collections.emptyList();
         Page<ItemRequest> pagedResponse = new PageImpl<>(itemRequests);
 

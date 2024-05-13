@@ -37,7 +37,6 @@ public class UserControllerIntegrationTest {
     private UserDto userOutputDTO;
     private final ObjectMapper mapper = new ObjectMapper();
     private final Long userId1 = 1L;
-    private final Long userId2 = 3L;
     private final Long invalidId = 999L;
 
     public void setUp() {

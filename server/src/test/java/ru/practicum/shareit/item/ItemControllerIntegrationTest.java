@@ -24,7 +24,10 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -213,12 +216,6 @@ class ItemControllerIntegrationTest {
     @Order(5)
     @SneakyThrows
     public void testGetItem_ReturnsStatusOk() {
-        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
-        itemResponseDto11 = ItemResponseDto.builder()
-                .requestId(1L)
-                .build();
-
-
         mvc.perform(get("/items/{itemId}", itemId1)
                         .header("X-Sharer-User-Id", userId1)
                         .accept(MediaType.APPLICATION_JSON))
@@ -229,7 +226,6 @@ class ItemControllerIntegrationTest {
     @Order(6)
     @SneakyThrows
     public void testGetItem_WithUserIdNotOwner_ReturnsStatusOk() {
-        ItemResponseDto itemResponseDto11 = new ItemResponseDto();
         itemResponseDto = ItemResponseDto.builder()
                 .id(itemId1)
                 .name("Дрель")
@@ -276,21 +272,6 @@ class ItemControllerIntegrationTest {
     @Order(9)
     @SneakyThrows
     public void testGetAllItems_WithOwnerId_ReturnsStatusOk() {
-
-        ItemResponseDto itemOutputDTO1 = ItemResponseDto.builder()
-                .id(2L)
-                .name("Отвертка")
-                .description("Аккумуляторная отвертка")
-                .available(true)
-                .build();
-
-        ItemResponseDto itemOutputDTO2 = ItemResponseDto.builder()
-                .id(3L)
-                .name("Клей Момент")
-                .description("Тюбик суперклея марки Момент")
-                .available(true)
-                .build();
-        List<ItemResponseDto> items = Arrays.asList(itemOutputDTO1, itemOutputDTO2);
 
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", userId2)
@@ -374,11 +355,6 @@ class ItemControllerIntegrationTest {
                 .id(itemId1)
                 .name("Дрель++")
                 .build();
-        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-                .id(itemId1)
-                .name("Дрель++")
-                .available(true)
-                .build();
 
         mvc.perform(patch("/items/{itemId}", itemId1)
                         .header("X-Sharer-User-Id", userId1)
@@ -397,11 +373,6 @@ class ItemControllerIntegrationTest {
         ItemRequestDto itemInputDTO = ItemRequestDto.builder()
                 .id(itemId1)
                 .description("Простая дрель++")
-                .build();
-        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-                .id(itemId1)
-                .description("Простая дрель++")
-                .available(true)
                 .build();
 
         mvc.perform(patch("/items/{itemId}", itemId1)
@@ -455,90 +426,8 @@ class ItemControllerIntegrationTest {
                         ValidException.class));
     }
 
-//    @Test
-//    @Order(16)
-//    @SneakyThrows
-//    public void testCreate_WithItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//
-//        ItemRequest itemRequest = ItemRequest.builder().description("Нужен диван").requester(user2).build();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .name("Диван")
-//                .description("Мягкий диван.")
-//                .available(true)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemOutputDTO = ItemResponseDto.builder()
-//                .id(4L)
-//                .name("Диван")
-//                .description("Мягкий диван.")
-//                .available(true)
-//                .requestId(1L)
-//                .build();
-//
-//        mvc.perform(post("/items")
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("id", is(itemOutputDTO.getId()), Long.class))
-//                .andExpect(jsonPath("name", is(itemOutputDTO.getName())))
-//                .andExpect(jsonPath("description", is(itemOutputDTO.getDescription())))
-//                .andExpect(jsonPath("available", is(itemOutputDTO.getAvailable())));
-//    }
-
-//    @Test
-//    @Order(17)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk());
-//    }
-
-//    @Test
-//    @Order(18)
-//    @SneakyThrows
-//    public void testUpdateItem_OnlyNameAndHaveItemRequestId_ReturnsStatusOk() {
-//        setUp();
-//        ItemRequestDto itemInputDTO = ItemRequestDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .build();
-//        ItemResponseDto itemShortOutputDTO = ItemResponseDto.builder()
-//                .id(itemId1)
-//                .requestId(1L)
-//                .available(true)
-//                .build();
-//
-//        mvc.perform(patch("/items/{itemId}", itemId1)
-//                        .header("X-Sharer-User-Id", userId1)
-//                        .content(mapper.writeValueAsString(itemInputDTO))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk());
-//    }
-
     @Test
-    @Order(19)
+    @Order(16)
     @SneakyThrows
     public void testUpdateItem_WithNotOwner_ReturnsStatusNotFound() {
         setUp();
@@ -555,7 +444,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    @Order(20)
+    @Order(17)
     @SneakyThrows
     public void testAddComment_WithInvalidId_ReturnsStatusNotFound() {
         setUp();
@@ -576,7 +465,7 @@ class ItemControllerIntegrationTest {
     }
 
     @Test
-    @Order(21)
+    @Order(18)
     @SneakyThrows
     public void testSearchAllItems_WithEmptyText_ReturnsStatusOk() {
         String text = "";
